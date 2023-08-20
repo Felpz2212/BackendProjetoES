@@ -1,0 +1,95 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id              String            @id @default(uuid())
+  nome            String
+  email           String            @unique
+  senha           String
+  username        String            @unique
+  created_at      DateTime          @default(now())
+  Projeto         Projeto[]
+  Usuario_Projeto Usuario_Projeto[]
+  Usuario_Tarefa  Usuario_Tarefa[]
+
+  @@map("usuarios")
+}
+
+model Projeto {
+  id              String            @id @default(uuid())
+  nome            String
+  descricao       String
+  publico         Boolean
+  id_user_dono    String
+  user            Usuario           @relation(fields: [id_user_dono], references: [id], onDelete: NoAction)
+  Usuario_Projeto Usuario_Projeto[]
+  Usuario_Tarefa  Usuario_Tarefa[]
+  Tarefa          Tarefa[]
+
+  @@map("projetos")
+}
+
+model Status {
+  id        String   @id @default(uuid())
+  nome      String
+  descricao String
+  Tarefa    Tarefa[]
+}
+
+model Tarefa {
+  id             String           @id @default(uuid())
+  nome           String
+  descricao      String
+  publica        Boolean
+  data_inicial   DateTime
+  data_final     DateTime
+  id_projeto     String
+  projeto        Projeto          @relation(fields: [id_projeto], references: [id])
+  id_status      String
+  status         Status           @relation(fields: [id_status], references: [id])
+  Usuario_Tarefa Usuario_Tarefa[]
+
+  @@map("tarefas")
+}
+
+model Usuario_Projeto {
+  id              String       @id @default(uuid())
+  id_tipo_usuario String
+  tipoUsuario     Tipo_Usuario @relation(fields: [id_tipo_usuario], references: [id])
+  id_projeto      String
+  project         Projeto      @relation(fields: [id_projeto], references: [id])
+  id_usuario      String
+  user            Usuario      @relation(fields: [id_usuario], references: [id])
+
+  @@map("usuarios_projetos")
+}
+
+model Tipo_Usuario {
+  id              String            @id @default(uuid())
+  nome            String
+  descricao       String
+  Usuario_Projeto Usuario_Projeto[]
+
+  @@map("tipos_usuarios")
+}
+
+model Usuario_Tarefa {
+  id         String  @id @default(uuid())
+  id_projeto String
+  projeto    Projeto @relation(fields: [id_projeto], references: [id])
+  id_tarefa  String
+  tarefa     Tarefa  @relation(fields: [id_tarefa], references: [id])
+  id_usuario String
+  usuario    Usuario @relation(fields: [id_usuario], references: [id])
+
+  @@map("usuarios_tarefas")
+}
