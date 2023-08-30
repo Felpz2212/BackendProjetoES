@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { prismaClient } from 'src/database/prisma';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class UsuariosService {
@@ -24,5 +25,9 @@ export class UsuariosService {
 
   remove(id: string) {
     return prismaClient.usuario.delete({where: {id}});
+  }
+
+  findByEmail(email_user: string){
+    return prismaClient.usuario.findFirst({where: {email:email_user}});
   }
 }
